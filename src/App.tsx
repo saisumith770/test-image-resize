@@ -3,6 +3,7 @@ import Resizer from "react-image-file-resizer";
 import Slider from "@mui/material/Slider";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { Typography } from "@mui/material";
 
 const UploadFiles: React.FC<{ setFile: React.Dispatch<React.SetStateAction<File | null>> }> = ({ setFile }) => {
 	return (
@@ -42,6 +43,7 @@ function App() {
 	const [file, setFile] = useState<File | null>(null);
 	const [image, setImage] = useState<string | null>(null);
 	const [imageScale, setImageScale] = useState(50);
+	const [rotation, setRotation] = useState(0);
 
 	const [title, setTitle] = useState<string>("");
 	const [caption, setCaption] = useState<string>("");
@@ -54,7 +56,7 @@ function App() {
 				300 * (imageScale / 100 + 0.5),
 				"PNG",
 				100,
-				0,
+				rotation,
 				(uri) => {
 					resolve(uri);
 				},
@@ -64,7 +66,7 @@ function App() {
 
 	useEffect(() => {
 		file && resizeFile(file).then((data) => setImage(URL.createObjectURL(data as File)));
-	}, [file, imageScale]);
+	}, [file, imageScale, rotation]);
 
 	return (
 		<div style={{ display: "flex", width: "100%", height: "100%", position: "absolute", top: "0", left: "0" }}>
@@ -81,9 +83,21 @@ function App() {
 							transform: "translate(-50%, -50%)",
 						}}
 					>
-						{title !== "" && <h4>{title}</h4>}
-						<img src={image} />
-						{caption !== "" && <h4>{caption}</h4>}
+						{title !== "" && <Typography sx={{ fontSize: "15px", fontWeight: "bold", margin: "5px 10px" }}>{title}</Typography>}
+						<img src={image} style={{ margin: "0px 10px" }} />
+						{caption !== "" && (
+							<div
+								style={{
+									border: "0.5px solid grey",
+									borderRadius: "5px",
+									margin: "5px 10px",
+									padding: "10px",
+									wordWrap: "break-word",
+								}}
+							>
+								<Typography variant="caption">{caption}</Typography>
+							</div>
+						)}
 					</div>
 				)}
 			</div>
@@ -98,6 +112,15 @@ function App() {
 							onChange={(e, val) => setImageScale(val as number)}
 							sx={{ width: "80%", position: "relative", left: "50%", transform: "translate(-50%, 0)", margin: 1 }}
 						/>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+							}}
+						>
+							<Button onClick={() => setRotation((prev) => (prev === 0 ? 360 - 90 : prev - 90))}>Left</Button>
+							<Button onClick={() => setRotation((prev) => (prev === 360 ? 90 : prev + 90))}>Right</Button>
+						</div>
 						<TextField
 							id="image-title"
 							label="Title"
